@@ -4,9 +4,11 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.Path;
 import android.location.Address;
+import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
+import android.location.LocationManager;
 import android.nfc.Tag;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -37,6 +39,7 @@ import java.util.Map;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+    private LatLng myPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +49,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
+        // needs manifest authororization otherwise it'll display compiler err
+        // no need to check if else etc
 
 
     }
@@ -67,12 +71,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mMap = googleMap;
 
-
-        // Add a marker in Tunisia and move the camera
-        LatLng sydney = new LatLng(36.79385533873269, 10.151367189999974);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("yaaaaaaaaaaa rabi hezou"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-        CameraUpdate zoom=CameraUpdateFactory.zoomTo(600);
+        googleMap.isTrafficEnabled(); // traffic
+        // camera zoom
+        CameraUpdate zoom=CameraUpdateFactory.zoomTo(60);
         mMap.animateCamera(zoom);
 // displaying current location from anchor Y X
         //to complete
@@ -81,13 +82,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onMapClick(LatLng latLng) {
                 MarkerOptions marker = new MarkerOptions().position(
                         new LatLng(latLng.latitude, latLng.longitude)).title("EMBOUTEILLAGE");
-                marker.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_launcher));
+                //marker.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_launcher));
                 LatLng coord = marker.getPosition();
                 Toast.makeText(MapsActivity.this, "" + marker.getTitle(), Toast.LENGTH_SHORT).show();
                 mMap.addMarker(marker);
 
 
-
+                //used geocoder to get the clicked pointer location from Anchor X & Y
                 try{
                     Geocoder geo = new Geocoder(MapsActivity.this.getApplicationContext(), Locale.getDefault());
                     List<Address> addresses = geo.getFromLocation(latLng.latitude, latLng.longitude, 1);
@@ -111,7 +112,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
         //directions implementation
-        GoogleDirection.withServerKey("AIzaSyDwEDLHJdmg_iEUIuhW4MjzKX-WZEm87Gk")
+        // route tracing related
+        // serverkey = api given by google to us
+        //sixzche
+      /*  GoogleDirection.withServerKey("AIzaSyDwEDLHJdmg_iEUIuhW4MjzKX-WZEm87Gk")
                 .from(new LatLng(37.7681994, -122.444538))
                 .to(new LatLng(37.7749003,-122.4034934))
                 .avoid(AvoidType.FERRIES)
@@ -130,12 +134,59 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     public void onDirectionFailure(Throwable t) {
 
                     }
-                });
+                });*/
+    // find current location
+        //display getcurrent location button (top right)
+        mMap.getUiSettings().setMyLocationButtonEnabled(true);
+        //  needs authorization via manifest
+        // in android v2.0 this test isn't needed
+        // for android v3.0 + IDE's compilers + Target devices marshmallow 6.0 +
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        } // bullshit
+        mMap.setMyLocationEnabled(true);
+
+        // Getting LocationManager object from System Service LOCATION_SERVICE
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+        // Creating a criteria object to retrieve provider
+        Criteria criteria = new Criteria();
+
+        // Getting the name of the best provider
+        String provider = locationManager.getBestProvider(criteria, true);
+
+        // Getting Current Location
+        Location location = locationManager.getLastKnownLocation(provider);
+
+        if (location != null) {
+            // Getting latitude of the current location
+            double latitude = location.getLatitude();
+
+            // Getting longitude of the current location
+            double longitude = location.getLongitude();
+
+            // Creating a LatLng object for the current location
+            LatLng latLng = new LatLng(latitude, longitude);
+
+            myPosition = new LatLng(latitude, longitude);
+
+            mMap.addMarker(new MarkerOptions().position(myPosition).title("Ma position"));
+
+
+        }
+
 
 
     }
 
-    // locationlisteners
+
 
 
 
