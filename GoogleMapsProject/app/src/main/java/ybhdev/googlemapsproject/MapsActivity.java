@@ -29,6 +29,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.List;
@@ -70,10 +71,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
         mMap = googleMap;
-
+         LatLngBounds TUNIS = new LatLngBounds(
+                new LatLng(30.037000, 8.854980), new LatLng( 37.095717,  11.052246));
+        googleMap.setLatLngBoundsForCameraTarget(TUNIS);
         googleMap.isTrafficEnabled(); // traffic
         // camera zoom
-        CameraUpdate zoom=CameraUpdateFactory.zoomTo(60);
+        CameraUpdate zoom=CameraUpdateFactory.zoomTo(6);
         mMap.animateCamera(zoom);
 // displaying current location from anchor Y X
         //to complete
