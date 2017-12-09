@@ -8,12 +8,13 @@
          location permissions for the 'MyLocation' functionality. 
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ways"
-        android:label="@string/Ways"
+        android:label="@string/Streets"
         android:roundIcon="@mipmap/ways"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
@@ -39,6 +40,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".subscribe"
+            android:theme="@android:style/Theme.NoTitleBar"/>
+        <activity android:name=".Login"
+            android:theme="@android:style/Theme.NoTitleBar"></activity>
     </application>
 
 </manifest>

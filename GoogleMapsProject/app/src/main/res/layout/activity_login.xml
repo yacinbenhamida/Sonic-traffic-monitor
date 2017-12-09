@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    tools:context="ybhdev.googlemapsproject.Login"
+    android:orientation="vertical"
+    android:padding="25dp">
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:src="@drawable/streets_logo"
+        android:layout_marginBottom="10dp"
+        />
+   <EditText
+       android:layout_width="match_parent"
+       android:layout_height="40dp"
+       android:background="@drawable/rounded_edittext"
+       android:hint="@string/username"
+       android:layout_marginBottom="10dp"
+       android:id="@+id/uname"
+       android:maxLines="1"
+       android:textColor="#000"/>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="@drawable/rounded_edittext"
+        android:hint="@string/password"
+        android:maxLines="1"
+        android:id="@+id/password"
+        android:layout_marginBottom="10dp"
+        android:textColor="#000"/>
+    <Button
+        android:text="Login"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="btn_login_click"
+        android:layout_marginBottom="10dp"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center" android:textColor="@color/colorWhite"
+        android:textSize="20dp" android:text="NOT YET REGISTERED?"/>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="btn_sub_click"
+        android:text="SIGN UP"/>
+</LinearLayout>
