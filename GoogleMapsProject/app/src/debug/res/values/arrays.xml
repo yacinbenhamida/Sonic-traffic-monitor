@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="regions">
+        <item name="1">SAHEL</item>
+        <item name="2">GRAND TUNIS</item>
+
+    </string-array>
+</resources>

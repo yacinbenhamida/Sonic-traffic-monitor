@@ -20,7 +20,8 @@ android:layout_weight="0.5"
     android:layout_width="match_parent"
     android:layout_weight="1"
     android:layout_height="0dp"
-    android:background="@drawable/rounded_edittext"/>
+    android:background="@drawable/rounded_edittext"
+    android:id="@+id/username"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_weight="0.5"
@@ -29,6 +30,7 @@ android:layout_weight="0.5"
         android:text="mail"
         android:textSize="20dp"/>
     <EditText
+        android:id="@+id/mail"
         android:background="@drawable/rounded_edittext"
         android:layout_width="match_parent"
         android:layout_weight="1"
@@ -42,6 +44,7 @@ android:layout_weight="0.5"
 
         android:textSize="20dp"/>
     <EditText
+        android:id="@+id/password"
         android:layout_width="match_parent"
         android:inputType="textPassword"
         android:layout_weight="1"
@@ -56,6 +59,7 @@ android:layout_weight="0.5"
         android:text="confirm password"
         android:textSize="20dp"/>
     <EditText
+        android:id="@+id/confirmation"
         android:background="@drawable/rounded_edittext"
         android:layout_width="match_parent"
         android:inputType="textPassword"
@@ -69,11 +73,21 @@ android:layout_weight="0.5"
         android:text="Phone number"
         android:textSize="20dp"/>
     <EditText
+        android:id="@+id/phone"
         android:background="@drawable/rounded_edittext"
         android:layout_width="match_parent"
         android:layout_weight="1"
         android:layout_height="0dp"
         android:layout_marginBottom="10dp"/>
+<Spinner
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight="1"
+    android:id="@+id/spinnerRegion"
+    android:entries="@array/regions"
+    >
+
+</Spinner>
     <Button
         android:layout_width="match_parent"
         android:layout_weight="1"

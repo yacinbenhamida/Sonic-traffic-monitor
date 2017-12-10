@@ -73,6 +73,8 @@ public class Login extends AppCompatActivity {
     }
 
     public void btn_sub_click(View view) {
+        Intent i = new Intent(this,subscribe.class);
+        startActivity(i);
     }
 
     private class AsyncLogin extends AsyncTask<String, String, String> {
