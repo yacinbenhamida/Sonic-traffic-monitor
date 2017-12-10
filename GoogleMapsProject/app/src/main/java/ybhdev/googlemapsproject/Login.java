@@ -1,7 +1,9 @@
 package ybhdev.googlemapsproject;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.nfc.Tag;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,6 +20,16 @@ import com.android.volley.toolbox.StringRequest;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,7 +64,7 @@ public class Login extends AppCompatActivity {
             return;
         } else {
             try{
-            checkLogin(username,pass);} //exception here
+            new AsyncLogin().execute(username, pass);} //exception here
             catch (Exception e)
             {
                 Toast.makeText(this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -63,86 +75,130 @@ public class Login extends AppCompatActivity {
     public void btn_sub_click(View view) {
     }
 
-    private void checkLogin(final String username, final String password) {
-        // Tag used to cancel the request
-        String tag_string_req = "req_login";
+    private class AsyncLogin extends AsyncTask<String, String, String> {
+        ProgressDialog pdLoading = new ProgressDialog(Login.this);
+        HttpURLConnection conn;
+        URL url = null;
 
-        pDialog.setMessage("Logging in ...");
-        showDialog();
-    //mainly due to this
-        StringRequest strReq = new StringRequest(Request.Method.POST,
-                AppConfig.URL_LOGIN, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                //Log.d(TAG, "Login Response: " + response.toString());
-                Toast.makeText(Login.this, ""+response.toString(), Toast.LENGTH_SHORT).show();
-                hideDialog();
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
 
-                try {
-                    JSONObject jObj = new JSONObject(response);
-                    boolean error = jObj.getBoolean("error");
+            //this method will be running on UI thread
+            pdLoading.setMessage("\tLoading...");
+            pdLoading.setCancelable(false);
+            pdLoading.show();
 
-                    // Check for error node in json
-                    if (!error) {
-                        // user successfully logged in
-                        // Create login session
-
-                        JSONObject user = jObj.getJSONObject("user");
-                        String uname = user.getString("username");
-                        String password = user.getString("password");
-
-                        // Launch main activity
-                        Intent intent = new Intent(Login.this,
-                                MapsActivity.class);
-                        startActivity(intent);
-                        finish();
-                    } else {
-                        // Error in login. Get the error message
-                        String errorMsg = jObj.getString("error_msg");
-                        Toast.makeText(getApplicationContext(),
-                                errorMsg, Toast.LENGTH_LONG).show();
-                    }
-                } catch (JSONException e) {
-                    // JSON error
-                    e.printStackTrace();
-                    Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                }
-
-            }
-        }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                //Log.e(TAG, "Login Error: " + error.getMessage());
-
-                Toast.makeText(getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
-                pDialog.hide();
-            }
-        }) {
-
-            @Override
-            protected Map<String, String> getParams() {
-                // Posting parameters to login url
-                Map<String, String> params = new HashMap<>();
-                params.put("username", username);
-                params.put("password", password);
-
-                return params;
-            }
-
-        };
-        AppController.getInstance().addToRequestQueue(strReq,tag_string_req);
         }
 
-    private void showDialog() {
-        if (!pDialog.isShowing())
-            pDialog.show();
-    }
+        @Override
+        protected String doInBackground(String... params) {
+            try {
 
-    private void hideDialog() {
-        if (pDialog.isShowing())
-            pDialog.dismiss();
+                // Enter URL address where your php file resides
+                url = new URL("http://192.168.1.5:8000/login.inc.php");
+
+            } catch (MalformedURLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                return "exception";
+            }
+            try {
+                // Setup HttpURLConnection class to send and receive data from php and mysql
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setReadTimeout(4000);
+                conn.setConnectTimeout(6000);
+                conn.setRequestMethod("POST");
+
+                // setDoInput and setDoOutput method depict handling of both send and receive
+                conn.setDoInput(true);
+                conn.setDoOutput(true);
+
+                // Append parameters to URL
+                Uri.Builder builder = new Uri.Builder()
+                        .appendQueryParameter("username", params[0])
+                        .appendQueryParameter("password", params[1]);
+                String query = builder.build().getEncodedQuery();
+
+                // Open connection for sending data
+                OutputStream os = conn.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(
+                        new OutputStreamWriter(os, "UTF-8"));
+                writer.write(query);
+                writer.flush();
+                writer.close();
+                os.close();
+                conn.connect();
+
+            } catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+                return "exception";
+            }
+
+            try {
+
+                int response_code = conn.getResponseCode();
+
+                // Check if successful connection made
+                if (response_code == HttpURLConnection.HTTP_OK) {
+
+                    // Read data sent from server
+                    InputStream input = conn.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+                    StringBuilder result = new StringBuilder();
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        result.append(line);
+                    }
+
+                    // Pass data to onPostExecute method
+                    return (result.toString());
+
+                } else {
+
+                    return ("unsuccessful");
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                return "exception";
+            } finally {
+                conn.disconnect();
+            }
+
+
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+
+            //this method will be running on UI thread
+
+            pdLoading.dismiss();
+
+            if (result.equalsIgnoreCase("true")) {
+                /* Here launching another activity when login successful. If you persist login state
+                use sharedPreferences of Android. and logout button to clear sharedPreferences.
+                 */
+
+                Intent intent = new Intent(Login.this, MapsActivity.class);
+                startActivity(intent);
+                Login.this.finish();
+
+            } else if (result.equalsIgnoreCase("false")) {
+
+                // If username and password does not match display a error message
+                Toast.makeText(Login.this, "Invalid email or password", Toast.LENGTH_LONG).show();
+
+            } else if (result.equalsIgnoreCase("exception") || result.equalsIgnoreCase("unsuccessful")) {
+
+                Toast.makeText(Login.this, "OOPs! Something went wrong. Connection Problem.", Toast.LENGTH_LONG).show();
+
+            }
+
+        }
     }
 
 }
