@@ -22,6 +22,7 @@
        android:layout_marginBottom="10dp"
        android:id="@+id/uname"
        android:maxLines="1"
+
        android:textColor="#000"/>
     <EditText
         android:layout_width="match_parent"
@@ -37,7 +38,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="btn_login_click"
-        android:layout_marginBottom="10dp"/>
+        android:layout_marginBottom="10dp"
+        />
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
