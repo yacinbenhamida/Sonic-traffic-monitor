@@ -39,7 +39,7 @@ public class Login extends AppCompatActivity {
     private EditText txt_username;
     private EditText txt_password;
     private ProgressDialog pDialog; //progress bar
-
+    private String username;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,6 +121,7 @@ public class Login extends AppCompatActivity {
                         .appendQueryParameter("username", params[0])
                         .appendQueryParameter("password", params[1]);
                 String query = builder.build().getEncodedQuery();
+                username = params[0]; //666
 
                 // Open connection for sending data
                 OutputStream os = conn.getOutputStream();
@@ -186,6 +187,8 @@ public class Login extends AppCompatActivity {
                  */
 
                 Intent intent = new Intent(Login.this, MapsActivity.class);
+
+                intent.putExtra("username",username);
                 startActivity(intent);
                 Login.this.finish();
 

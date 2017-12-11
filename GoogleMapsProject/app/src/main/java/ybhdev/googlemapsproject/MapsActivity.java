@@ -1,6 +1,9 @@
 package ybhdev.googlemapsproject;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Path;
 import android.location.Address;
@@ -13,8 +16,10 @@ import android.nfc.Tag;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View.OnClickListener;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.akexorcist.googledirection.DirectionCallback;
@@ -41,18 +46,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     private LatLng myPosition;
-
+    private String username;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         // needs manifest authororization otherwise it'll display compiler err
         // no need to check if else etc
-
+        Intent i = getIntent(); //passing the username
+       username = i.getStringExtra("username");
 
     }
 
@@ -81,16 +88,48 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 // displaying current location from anchor Y X
         //to complete
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            String m_Text;
+            MarkerOptions marker;
             @Override
             public void onMapClick(LatLng latLng) {
-                MarkerOptions marker = new MarkerOptions().position(
+                  marker = new MarkerOptions().position(
                         new LatLng(latLng.latitude, latLng.longitude)).title("EMBOUTEILLAGE");
                 //marker.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_launcher));
                 LatLng coord = marker.getPosition();
-                Toast.makeText(MapsActivity.this, "" + marker.getTitle(), Toast.LENGTH_SHORT).show();
-                mMap.addMarker(marker);
+                //Toast.makeText(MapsActivity.this, "" + marker.getTitle(), Toast.LENGTH_SHORT).show();
+               // mMap.addMarker(marker);
 
+                // dialog box prompt intensity
 
+                AlertDialog.Builder builder = new AlertDialog.Builder(MapsActivity.this);
+                builder.setTitle("Traffic intensity? ( in %)");
+
+            // Set up the input
+                final EditText input = new EditText(MapsActivity.this);
+            // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+               input.setInputType(InputType.TYPE_CLASS_NUMBER);
+                builder.setView(input);
+
+            // Set up the buttons
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        m_Text = input.getText().toString();
+                        Toast.makeText(MapsActivity.this, ""+m_Text, Toast.LENGTH_SHORT).show();
+                        // save to DB
+                        mMap.addMarker(marker);
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                builder.show();
+
+                // end dialog
                 //used geocoder to get the clicked pointer location from Anchor X & Y
                 try{
                     Geocoder geo = new Geocoder(MapsActivity.this.getApplicationContext(), Locale.getDefault());
@@ -101,7 +140,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     else {
                         if (addresses.size() > 0) {
                             String str = addresses.get(0).getFeatureName() + "," + addresses.get(0).getLocality() +"," + addresses.get(0).getAdminArea() + ", " + addresses.get(0).getCountryName();
-                           // System.out.println(addresses.get(0).getFeatureName() + "," + addresses.get(0).getLocality() +"," + addresses.get(0).getAdminArea() + ", " + addresses.get(0).getCountryName());
+
+
+
                             Toast.makeText(MapsActivity.this, str, Toast.LENGTH_SHORT).show(); //displaying coordinates
                             //TO DO save data in the sqlite DB
                             // transfer it to the mysql DB via a RESTFUL API
