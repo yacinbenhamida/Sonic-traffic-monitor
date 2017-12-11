@@ -90,6 +90,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             String m_Text;
             MarkerOptions marker;
+            String fulladr = "";
             @Override
             public void onMapClick(LatLng latLng) {
                   marker = new MarkerOptions().position(
@@ -98,6 +99,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 LatLng coord = marker.getPosition();
                 //Toast.makeText(MapsActivity.this, "" + marker.getTitle(), Toast.LENGTH_SHORT).show();
                // mMap.addMarker(marker);
+
+                //used geocoder to get the clicked pointer location from Anchor X & Y
+                try{
+                    Geocoder geo = new Geocoder(MapsActivity.this.getApplicationContext(), Locale.getDefault());
+                    List<Address> addresses = geo.getFromLocation(latLng.latitude, latLng.longitude, 1);
+                    if (addresses.isEmpty()) {
+                        Toast.makeText(getApplicationContext(), "location waiting", Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        if (addresses.size() > 0) {
+                            fulladr = addresses.get(0).getFeatureName() + "," + addresses.get(0).getLocality() +"," + addresses.get(0).getAdminArea() + ", " + addresses.get(0).getCountryName();
+
+
+
+                            Toast.makeText(MapsActivity.this, fulladr, Toast.LENGTH_SHORT).show(); //displaying coordinates
+                        }
+                    }
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
 
                 // dialog box prompt intensity
 
@@ -117,6 +139,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         m_Text = input.getText().toString();
                         Toast.makeText(MapsActivity.this, ""+m_Text, Toast.LENGTH_SHORT).show();
                         // save to DB
+                        saveToDatabase(marker.getAnchorV(),marker.getAnchorU(),Integer.parseInt(m_Text),fulladr);
                         mMap.addMarker(marker);
                     }
                 });
@@ -130,55 +153,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 builder.show();
 
                 // end dialog
-                //used geocoder to get the clicked pointer location from Anchor X & Y
-                try{
-                    Geocoder geo = new Geocoder(MapsActivity.this.getApplicationContext(), Locale.getDefault());
-                    List<Address> addresses = geo.getFromLocation(latLng.latitude, latLng.longitude, 1);
-                    if (addresses.isEmpty()) {
-                        Toast.makeText(getApplicationContext(), "location waiting", Toast.LENGTH_SHORT).show();
-                    }
-                    else {
-                        if (addresses.size() > 0) {
-                            String str = addresses.get(0).getFeatureName() + "," + addresses.get(0).getLocality() +"," + addresses.get(0).getAdminArea() + ", " + addresses.get(0).getCountryName();
 
-
-
-                            Toast.makeText(MapsActivity.this, str, Toast.LENGTH_SHORT).show(); //displaying coordinates
-                            //TO DO save data in the sqlite DB
-                            // transfer it to the mysql DB via a RESTFUL API
-                        }
-                    }
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
-                // System.out.println(latLng.latitude+"---"+ latLng.longitude);
             }
         });
-        //directions implementation
-        // route tracing related
-        // serverkey = api given by google to us
-        //sixzche
-      /*  GoogleDirection.withServerKey("AIzaSyDwEDLHJdmg_iEUIuhW4MjzKX-WZEm87Gk")
-                .from(new LatLng(37.7681994, -122.444538))
-                .to(new LatLng(37.7749003,-122.4034934))
-                .avoid(AvoidType.FERRIES)
-                .avoid(AvoidType.HIGHWAYS)
-                .execute(new DirectionCallback() {
-                    @Override
-                    public void onDirectionSuccess(Direction direction, String rawBody) {
-                        if(direction.isOK()) {
-                            Toast.makeText(MapsActivity.this, "Direction", Toast.LENGTH_SHORT).show();
-                        } else {
-                            // Do something
-                        }
-                    }
-
-                    @Override
-                    public void onDirectionFailure(Throwable t) {
-
-                    }
-                });*/
+       
     // find current location
         //display getcurrent location button (top right)
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
@@ -228,6 +206,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
 
+    }
+    public void saveToDatabase(double anchorX,double anchorY,int intensity,String fullAdr)
+    {
+        String type="savepost";
+        AsyncSaveReport asyncSaveReport = new AsyncSaveReport(this);
+        asyncSaveReport.execute(type,String.valueOf(anchorX),String.valueOf(anchorY),fullAdr,String.valueOf(intensity),username);
     }
 
 
