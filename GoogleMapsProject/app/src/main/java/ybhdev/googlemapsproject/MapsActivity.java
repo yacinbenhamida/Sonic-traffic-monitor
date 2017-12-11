@@ -113,7 +113,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
 
-                            Toast.makeText(MapsActivity.this, fulladr, Toast.LENGTH_SHORT).show(); //displaying coordinates
+                          //  Toast.makeText(MapsActivity.this, fulladr, Toast.LENGTH_SHORT).show(); 
                         }
                     }
                 }
@@ -156,7 +156,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         });
-       
+
     // find current location
         //display getcurrent location button (top right)
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
